@@ -32,7 +32,7 @@ public class PasswordChangeDTO {
     String oldPassword = "";
     @Getter
     @Setter
-    @Length(min = UserServiceImpl.MIN_PASSWORD_LENGTH)
+    @NotEmpty
     String newPassword = "";
 
 }

@@ -711,7 +711,7 @@ public class UserRestIntegrationTest extends XAuthIntegrationTest {
             contentType(ContentType.JSON).
             post("/users/current/password").
         then().
-            statusCode(HttpStatus.SC_BAD_REQUEST);
+            statusCode(HttpStatus.SC_NOT_MODIFIED);
         //@formatter:on
     }
 
@@ -793,6 +793,24 @@ public class UserRestIntegrationTest extends XAuthIntegrationTest {
             post("/users/current/password").
         then().
             statusCode(HttpStatus.SC_BAD_REQUEST);
+        //@formatter:on
+    }
+
+    @Test
+    public void testChangePasswordShortNewPassword() {
+        User user = createUser();
+        Map<String, String> passwordDTO = new HashMap<>();
+        passwordDTO.put("newPassword", "new");
+
+        //@formatter:off
+        given().
+                header(getXAuthTokenHeaderForUser(user)).
+                when().
+                body(passwordDTO).
+                contentType(ContentType.JSON).
+                post("/users/current/password").
+                then().
+                statusCode(HttpStatus.SC_BAD_REQUEST);
         //@formatter:on
     }
 

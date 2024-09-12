@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -89,8 +90,19 @@ public class CurrentUserRestController {
     @PostMapping("/password")
     public ResponseEntity<?> changeCurrentUserPassword(@AuthenticationPrincipal User user,
                                                        @RequestBody @Validated PasswordChangeDTO passwordChangeDTO) {
-        userService.changePassword(user.getId(),
-                passwordChangeDTO.getOldPassword(), passwordChangeDTO.getNewPassword());
+        try {
+            userService.changePassword(user.getId(),
+                    passwordChangeDTO.getOldPassword(), passwordChangeDTO.getNewPassword());
+        } catch (Exception e) {
+            if (e instanceof IllegalArgumentException) {
+                return createResponseEntity(HttpStatus.NOT_MODIFIED, e.getMessage());
+
+            } else if (e instanceof AccessDeniedException) {
+                return createResponseEntity(HttpStatus.FORBIDDEN, e.getMessage());
+            } else {
+                return createResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong, please try again!");
+            }
+        }
 
         return createResponseEntity(HttpStatus.OK, "Password successfully changed");
     }
